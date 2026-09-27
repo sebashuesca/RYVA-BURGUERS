@@ -8,6 +8,12 @@ class UsuarioCreate(BaseModel):
     telefono: str | None = Field(default=None, max_length=25)
 
 
+class UsuarioLogin(BaseModel):
+    # El seeder académico usa example.test, un dominio reservado que EmailStr rechaza.
+    email: str = Field(min_length=3, max_length=254, pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+    password: str
+
+
 class UsuarioUpdate(BaseModel):
     nombre: str | None = Field(default=None, min_length=1, max_length=120)
     email: EmailStr | None = None

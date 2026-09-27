@@ -7,10 +7,10 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import Rol, Usuario
-from app.schemas.users import UsuarioCreate, UsuarioOut, UsuarioUpdate
+from app.schemas.users import UsuarioCreate, UsuarioLogin, UsuarioOut, UsuarioUpdate
 from app.security import require_admin_key
 from app.services.errors import BusinessError
-from app.services.passwords import hash_password
+from app.services.passwords import hash_password, verify_password
 
 router = APIRouter(prefix="/api/v1/usuarios", tags=["usuarios"])
 
@@ -45,6 +45,16 @@ def register(body: UsuarioCreate, db: Session = Depends(get_db)):
         return result
     except IntegrityError as exc:
         raise HTTPException(status_code=409, detail="Correo ya registrado") from exc
+
+
+@router.post("/login", response_model=UsuarioOut)
+def login(body: UsuarioLogin, db: Session = Depends(get_db)):
+    user = db.scalar(select(Usuario).where(Usuario.email == body.email.strip().lower()))
+    if user is None or not verify_password(body.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
+    if user.rol.nombre_rol != "CLIENTE":
+        raise HTTPException(status_code=403, detail="Esta cuenta no es de cliente")
+    return to_out(user)
 
 
 @router.get("", response_model=list[UsuarioOut], dependencies=[Depends(require_admin_key)])

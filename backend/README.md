@@ -36,10 +36,11 @@ Preparar antes la base MySQL con los scripts del Módulo 1. `GET /health` verifi
 | `PUT /api/v1/ingredientes/{id}` | Ajuste de stock; deshabilita productos si queda bajo el mínimo. |
 | `POST /api/v1/pedidos/cotizar` | Cobertura de 5 km, tarifa y ETA. |
 | `POST /api/v1/pedidos` | Pedido, descuento BOM, pago pendiente y ETA. |
-| `GET /api/v1/pedidos/kds` | Cola dinámica de cocina con agrupación de plancha. |
-| `PATCH /api/v1/pedidos/{id}/estado` | `PENDIENTE → EN_PREPARACION → LISTO`. |
+| `GET /api/v1/pedidos/kds` | Cola dinámica de cocina y columna de pedidos `LISTO`. |
+| `PATCH /api/v1/pedidos/{id}/estado` | `PENDIENTE → EN_PREPARACION → LISTO → EN_CAMINO`. |
 | `POST /api/v1/recomendaciones` | Complementos por coocurrencia histórica. |
 | `POST /api/v1/usuarios` | Registra un cliente con contraseña PBKDF2-SHA256. |
+| `POST /api/v1/usuarios/login` | Valida correo y contraseña para recuperar el ID de cliente. |
 | `GET/PUT/DELETE /api/v1/usuarios` | CRUD administrativo de usuarios; `DELETE` respeta las claves foráneas. |
 
 Las rutas administrativas y KDS requieren el encabezado `X-Admin-Key`. No se debe insertar esa clave en código JavaScript público; el módulo web debe obtenerla del operador o sustituirla por autenticación de usuarios. `POST /pedidos` usa el `id_usuario` de un cliente registrado; la identidad del cliente todavía no se autentica. Los pagos se registran como **PENDIENTE**: esta API no cobra tarjetas ni marca pagos aprobados.

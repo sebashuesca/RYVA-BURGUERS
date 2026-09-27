@@ -39,7 +39,7 @@ class PedidoOut(CotizacionOut):
 
 
 class EstadoUpdate(BaseModel):
-    estado_pedido: Literal["EN_PREPARACION", "LISTO"]
+    estado_pedido: Literal["EN_PREPARACION", "LISTO", "EN_CAMINO"]
 
 
 class EstadoOut(BaseModel):

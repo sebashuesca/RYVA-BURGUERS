@@ -24,11 +24,12 @@ from app.services.priority_queue import ActiveOrder, rank_orders
 router = APIRouter(prefix="/api/v1/pedidos", tags=["pedidos"])
 
 
-def active_orders(db: Session) -> list[Pedido]:
+def active_orders(db: Session, include_ready: bool = False) -> list[Pedido]:
+    states = ("PENDIENTE", "EN_PREPARACION", "LISTO") if include_ready else ("PENDIENTE", "EN_PREPARACION")
     return db.scalars(
         select(Pedido)
         .options(selectinload(Pedido.detalles).joinedload(DetallePedido.producto).joinedload(Producto.categoria))
-        .where(Pedido.estado_pedido.in_(("PENDIENTE", "EN_PREPARACION")))
+        .where(Pedido.estado_pedido.in_(states))
         .order_by(Pedido.fecha_hora, Pedido.id_pedido)
     ).all()
 
@@ -111,7 +112,7 @@ def create_order(body: PedidoCreate, db: Session = Depends(get_db)):
 
 @router.get("/kds", response_model=list[ComandaOut], dependencies=[Depends(require_admin_key)])
 def kitchen_queue(db: Session = Depends(get_db)):
-    orders = active_orders(db)
+    orders = active_orders(db, include_ready=True)
     product_ids = {line.id_producto for order in orders for line in order.detalles}
     proteins: dict[int, set[str]] = defaultdict(set)
     if product_ids:
@@ -135,10 +136,11 @@ def kitchen_queue(db: Session = Depends(get_db)):
             grupo_plancha=" + ".join(grill) if grill else "SIN_PLANCHA",
             productos=[f"{line.cantidad} × {line.producto.nombre}" for line in order.detalles],
         ))
-    ranked = rank_orders(commands, datetime.now(timezone.utc).replace(tzinfo=None))
-    return [ComandaOut(
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    ranked = rank_orders([order for order in commands if order.estado_pedido != "LISTO"], now)
+    active_result = [ComandaOut(
         id_pedido=row.order.id_pedido,
-        fecha_hora=row.order.fecha_hora,
+        fecha_hora=row.order.fecha_hora.replace(tzinfo=timezone.utc),
         estado_pedido=row.order.estado_pedido,
         prioridad=row.prioridad,
         espera_minutos=row.espera_minutos,
@@ -146,11 +148,22 @@ def kitchen_queue(db: Session = Depends(get_db)):
         grupo_plancha=row.order.grupo_plancha,
         productos=row.order.productos,
     ) for row in ranked]
+    ready_result = [ComandaOut(
+        id_pedido=order.id_pedido,
+        fecha_hora=order.fecha_hora.replace(tzinfo=timezone.utc),
+        estado_pedido=order.estado_pedido,
+        prioridad=0,
+        espera_minutos=round(max(0, (now - order.fecha_hora).total_seconds() / 60), 2),
+        preparacion_minutos=order.preparacion_minutos,
+        grupo_plancha=order.grupo_plancha,
+        productos=order.productos,
+    ) for order in commands if order.estado_pedido == "LISTO"]
+    return active_result + ready_result
 
 
 @router.patch("/{id_pedido}/estado", response_model=EstadoOut, dependencies=[Depends(require_admin_key)])
 def update_status(id_pedido: int, body: EstadoUpdate, db: Session = Depends(get_db)):
-    transitions = {"PENDIENTE": "EN_PREPARACION", "EN_PREPARACION": "LISTO"}
+    transitions = {"PENDIENTE": "EN_PREPARACION", "EN_PREPARACION": "LISTO", "LISTO": "EN_CAMINO"}
     with db.begin():
         order = db.get(Pedido, id_pedido, with_for_update=True)
         if order is None:
