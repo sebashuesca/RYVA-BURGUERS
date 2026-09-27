@@ -2,12 +2,14 @@
 
 App React con Vite. El menú, carrito, sugerencias y checkout consumen la API del Módulo 2. La vista de cocina usa `#/kds` y muestra tres columnas con comandas ordenadas por prioridad; se actualiza cada ocho segundos. Electron abre esa vista en una ventana de escritorio.
 
+El panel de productos está en `#/admin`, accesible también desde el icono de productos del KDS. Usa la misma clave administrativa de sesión. Permite crear, editar y eliminar productos, editar su receta y controlar la disponibilidad. La imagen predeterminada se elige según la categoría cuando se deja vacío el enlace; el servidor aplica la misma regla. Los productos que ya aparecen en pedidos no se borran físicamente: el panel muestra el conflicto y permite ocultarlos desactivando **Disponible en el menú**. La categoría Postres se ofrece cuando exista en la tabla `categorias`.
+
 ## Ejecutar localmente
 
 1. Cargar los scripts de `database/` y arrancar la API como indica `backend/README.md`.
 2. En `frontend/`, copiar `.env.example` a `.env.local` y ajustar `VITE_API_BASE_URL` a la URL de la API. Usar las mismas coordenadas de cocina que en el backend.
 3. Ejecutar `npm ci` y `npm run dev`.
-4. Abrir `http://localhost:5173/` para clientes o `http://localhost:5173/#/kds` para cocina.
+4. Abrir `http://localhost:5173/` para clientes, `http://localhost:5173/#/kds` para cocina o `http://localhost:5173/#/admin` para productos.
 
 El KDS pide la clave `ADMIN_API_KEY` al operador y la conserva solo en `sessionStorage` durante esa sesión. El checkout registra o recupera un cliente, consulta `/api/v1/pedidos/cotizar` y confirma un pedido con pago en efectivo pendiente. La distancia Haversine mostrada en pantalla es orientativa; la cobertura, tarifa y ETA definitivos provienen de la API. La geolocalización requiere permiso del usuario y un contexto seguro (`localhost` o HTTPS). También se pueden escribir las coordenadas manualmente.
 

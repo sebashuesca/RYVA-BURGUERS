@@ -29,8 +29,12 @@ Preparar antes la base MySQL con los scripts del Módulo 1. `GET /health` verifi
 | Ruta | Uso |
 | --- | --- |
 | `GET /api/v1/productos` | Catálogo disponible; `?incluir_no_disponibles=true` muestra todos los de categorías activas. |
-| `POST /api/v1/productos` | Alta de producto deshabilitado. |
-| `PUT /api/v1/productos/{id}` | Edición y activación si la receta tiene insumos suficientes. |
+| `POST /api/v1/productos` | Alta de producto con imagen por categoría y receta opcional. |
+| `GET /api/v1/productos/admin` | Catálogo completo para administración, incluso productos ocultos. |
+| `GET /api/v1/productos/categorias` | Categorías para el formulario administrativo. |
+| `GET /api/v1/productos/{id}/receta` | Insumos actuales del producto para edición. |
+| `PUT /api/v1/productos/{id}` | Edición, receta opcional y activación si hay insumos suficientes. |
+| `DELETE /api/v1/productos/{id}` | Elimina productos sin ventas y sus filas de receta. |
 | `PUT /api/v1/productos/{id}/receta` | Reemplaza la receta; deja el producto deshabilitado hasta revisión. |
 | `GET /api/v1/ingredientes` | Inventario y alertas. |
 | `PUT /api/v1/ingredientes/{id}` | Ajuste de stock; deshabilita productos si queda bajo el mínimo. |
@@ -44,5 +48,7 @@ Preparar antes la base MySQL con los scripts del Módulo 1. `GET /health` verifi
 | `GET/PUT/DELETE /api/v1/usuarios` | CRUD administrativo de usuarios; `DELETE` respeta las claves foráneas. |
 
 Las rutas administrativas y KDS requieren el encabezado `X-Admin-Key`. No se debe insertar esa clave en código JavaScript público; el módulo web debe obtenerla del operador o sustituirla por autenticación de usuarios. `POST /pedidos` usa el `id_usuario` de un cliente registrado; la identidad del cliente todavía no se autentica. Los pagos se registran como **PENDIENTE**: esta API no cobra tarjetas ni marca pagos aprobados.
+
+Al crear un producto sin `imagen_url`, el servidor guarda la imagen predeterminada de su categoría (hamburguesas, bebidas, complementos, postres o general). Para crearlo como `disponible=true`, incluir `receta` con `{id_ingrediente, cantidad_requerida}` y stock suficiente; un producto sin receta permanece fuera del menú. `PUT /productos/{id}` puede reemplazar la receta en la misma transacción si recibe ese campo. La eliminación física se rechaza con `409` cuando el producto ya figura en pedidos: en ese caso se debe deshabilitar para conservar el historial.
 
 La cola KDS recalcula prioridad al consultar, usa pesos `(1.0, 0.35, 3.0)` y agrupa por proteínas compartidas dentro de bandas de cinco puntos. Los tiempos base de preparación se estiman por categoría porque el esquema académico no incluye tiempos por producto. El ETA aplica la fórmula de carga activa entre estaciones, más tránsito a velocidad configurada y cinco minutos de empaque. Recomendaciones usa frecuencia de pares de productos en pedidos no cancelados.

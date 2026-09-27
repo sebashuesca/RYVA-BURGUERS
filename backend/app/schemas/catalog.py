@@ -3,13 +3,22 @@ from decimal import Decimal
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class ProductoCreate(BaseModel):
+class RecetaLineaIn(BaseModel):
+    id_ingrediente: int = Field(gt=0)
+    cantidad_requerida: Decimal = Field(gt=0, max_digits=12, decimal_places=3)
+
+
+class ProductoBase(BaseModel):
     id_categoria: int = Field(gt=0)
     nombre: str = Field(min_length=1, max_length=120)
     descripcion: str | None = Field(default=None, max_length=500)
     precio_base: Decimal = Field(ge=0, max_digits=10, decimal_places=2)
     imagen_url: str | None = Field(default=None, max_length=500)
     disponible: bool = False
+
+
+class ProductoCreate(ProductoBase):
+    receta: list[RecetaLineaIn] = Field(default_factory=list, max_length=100)
 
 
 class ProductoUpdate(BaseModel):
@@ -19,11 +28,19 @@ class ProductoUpdate(BaseModel):
     precio_base: Decimal | None = Field(default=None, ge=0, max_digits=10, decimal_places=2)
     imagen_url: str | None = Field(default=None, max_length=500)
     disponible: bool | None = None
+    receta: list[RecetaLineaIn] | None = Field(default=None, max_length=100)
 
 
-class ProductoOut(ProductoCreate):
+class ProductoOut(ProductoBase):
     model_config = ConfigDict(from_attributes=True)
     id_producto: int
+
+
+class CategoriaOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id_categoria: int
+    nombre_categoria: str
+    activo: bool
 
 
 class IngredienteOut(BaseModel):
@@ -39,11 +56,6 @@ class IngredienteOut(BaseModel):
 class IngredienteUpdate(BaseModel):
     stock_actual: Decimal = Field(ge=0, max_digits=12, decimal_places=3)
     stock_minimo: Decimal | None = Field(default=None, ge=0, max_digits=12, decimal_places=3)
-
-
-class RecetaLineaIn(BaseModel):
-    id_ingrediente: int = Field(gt=0)
-    cantidad_requerida: Decimal = Field(gt=0, max_digits=12, decimal_places=3)
 
 
 class RecetaUpdate(BaseModel):
