@@ -14,7 +14,7 @@ settings = get_settings()
 app = FastAPI(title="RIVA BURGUERS API", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.allowed_origins,
+    allow_origins=["http://localhost:5173", "https://ryva-burguers.vercel.app"],
     allow_credentials=False,
     allow_methods=["GET", "POST", "PUT", "PATCH", "OPTIONS"],
     allow_headers=["Content-Type", "X-Admin-Key"],
