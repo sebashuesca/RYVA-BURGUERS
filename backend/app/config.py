@@ -24,7 +24,6 @@ class Settings(BaseSettings):
     kitchen_latitude: float = Field(ge=-90, le=90)
     kitchen_longitude: float = Field(ge=-180, le=180)
     kitchen_stations: int = Field(default=2, ge=1, le=100)
-    delivery_radius_km: float = Field(default=5.0, gt=0, le=5.0)
     delivery_base_fee: float = Field(default=20.0, ge=0)
     delivery_fee_per_km: float = Field(default=5.0, ge=0)
     delivery_speed_kmh: float = Field(default=20.0, gt=0)

@@ -1,4 +1,4 @@
-"""Cobertura geográfica y tarifa de envío."""
+"""Distancia geográfica y tarifa de envío sin límite de cobertura."""
 
 from decimal import Decimal, ROUND_HALF_UP
 from math import asin, ceil, cos, isfinite, radians, sin, sqrt
@@ -21,8 +21,6 @@ def distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 def quote_delivery(lat: float, lon: float, settings: Settings) -> tuple[float, Decimal]:
     km = distance_km(settings.kitchen_latitude, settings.kitchen_longitude, lat, lon)
-    if km > settings.delivery_radius_km:
-        raise BusinessError(f"Dirección fuera de cobertura ({km:.2f} km; máximo {settings.delivery_radius_km:.1f} km)", 422)
     # Se factura cada kilómetro iniciado y se conserva moneda DECIMAL.
     fee = Decimal(str(settings.delivery_base_fee)) + Decimal(ceil(km)) * Decimal(str(settings.delivery_fee_per_km))
     return round(km, 3), fee.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)

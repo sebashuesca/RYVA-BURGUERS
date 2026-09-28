@@ -11,7 +11,7 @@ El panel de productos está en `#/admin`, accesible también desde el icono de p
 3. Ejecutar `npm ci` y `npm run dev`.
 4. Abrir `http://localhost:5173/` para clientes, `http://localhost:5173/#/kds` para cocina o `http://localhost:5173/#/admin` para productos.
 
-El KDS pide la clave `ADMIN_API_KEY` al operador y la conserva solo en `sessionStorage` durante esa sesión. El checkout registra o recupera un cliente, consulta `/api/v1/pedidos/cotizar` y confirma un pedido con pago en efectivo pendiente. La distancia Haversine mostrada en pantalla es orientativa; la cobertura, tarifa y ETA definitivos provienen de la API. La geolocalización requiere permiso del usuario y un contexto seguro (`localhost` o HTTPS). También se pueden escribir las coordenadas manualmente.
+El KDS pide la clave `ADMIN_API_KEY` al operador y la conserva solo en `sessionStorage` durante esa sesión. El checkout registra o recupera un cliente, consulta `/api/v1/pedidos/cotizar` y confirma un pedido con pago en efectivo pendiente. La distancia Haversine mostrada en pantalla es orientativa; la tarifa y ETA definitivos provienen de la API, sin límite de distancia. La geolocalización requiere permiso del usuario y un contexto seguro (`localhost` o HTTPS). También se pueden escribir las coordenadas manualmente.
 
 ## Vercel
 

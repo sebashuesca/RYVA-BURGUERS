@@ -80,7 +80,7 @@ export default function CheckoutModal({ lines, onClose, onSuccess }) {
 
   async function confirmOrder(event) {
     event.preventDefault()
-    if (!quote || submitting) return
+    if (submitting) return
     setSubmitting(true)
     setSubmitError('')
     try {
@@ -118,13 +118,13 @@ export default function CheckoutModal({ lines, onClose, onSuccess }) {
               </>
             )}
 
-            <div className="form-section-title section-gap"><span>02</span><div><h3>Entrega</h3><p>Hasta 5 km de nuestra cocina.</p></div></div>
+            <div className="form-section-title section-gap"><span>02</span><div><h3>Entrega</h3><p>Envíos a domicilio disponibles.</p></div></div>
             <label className="field">Dirección completa<input required minLength="5" maxLength="300" value={address} onChange={(event) => setAddress(event.target.value)} placeholder="Calle, número, colonia y referencias" /></label>
             <button className="location-button" type="button" onClick={locate}><Crosshair size={18} /> Usar mi ubicación actual</button>
             {locationError && <p className="form-error">{locationError}</p>}
             <div className="field-grid"><label className="field">Latitud<input type="number" step="any" min="-90" max="90" required value={lat} onChange={(event) => setLat(event.target.value)} placeholder="19.4326000" /></label><label className="field">Longitud<input type="number" step="any" min="-180" max="180" required value={lon} onChange={(event) => setLon(event.target.value)} placeholder="-99.1332000" /></label></div>
             {approximateKm !== null && <p className="distance-hint"><MapPin size={15} /> Distancia aproximada: {approximateKm.toFixed(2)} km. La cotización final la calcula la cocina.</p>}
-            {quoteBusy && <p className="distance-hint">Calculando cobertura y tiempo de entrega…</p>}
+            {quoteBusy && <p className="distance-hint">Calculando envío y tiempo de entrega…</p>}
             {quoteError && <p className="form-error">{quoteError}</p>}
             {quote && <div className="delivery-ok"><Check size={18} /><span>¡Llegamos hasta ti! {quote.distancia_km.toFixed(2)} km · aprox. {quote.eta_minutos} min</span></div>}
             <div className="payment-note"><CreditCard size={19} /><div><strong>Pago en efectivo al recibir</strong><span>El pedido queda pendiente de pago. No se realiza un cargo en línea.</span></div></div>
@@ -136,7 +136,7 @@ export default function CheckoutModal({ lines, onClose, onSuccess }) {
             <div className="summary-prices"><div><span>Subtotal</span><strong>{money(subtotal)}</strong></div><div><span>Envío</span><strong>{quote ? money(quote.tarifa_envio) : 'Por calcular'}</strong></div></div>
             <div className="summary-total"><span>Total estimado</span><strong>{money(subtotal + Number(quote?.tarifa_envio || 0))}</strong></div>
             {quote && <div className="summary-eta"><Truck size={21} /><div><strong>Llegada estimada</strong><span>{timeLabel(quote.llegada_estimada)}</span></div></div>}
-            <button className="primary-button full" form="checkout-form" type="submit" disabled={!quote || submitting || !address.trim()}>{submitting ? 'Confirmando…' : 'Confirmar pedido'} <ArrowRight size={19} /></button>
+            <button className="primary-button full" form="checkout-form" type="submit" disabled={submitting || !address.trim()}>{submitting ? 'Confirmando…' : 'Confirmar pedido'} <ArrowRight size={19} /></button>
             <span className="secure-note"><LockKeyhole size={14} /> Tu pedido se confirma con la cocina RIVA</span>
           </aside>
         </div>

@@ -38,7 +38,7 @@ Preparar antes la base MySQL con los scripts del Módulo 1. `GET /health` verifi
 | `PUT /api/v1/productos/{id}/receta` | Reemplaza la receta; deja el producto deshabilitado hasta revisión. |
 | `GET /api/v1/ingredientes` | Inventario y alertas. |
 | `PUT /api/v1/ingredientes/{id}` | Ajuste de stock; deshabilita productos si queda bajo el mínimo. |
-| `POST /api/v1/pedidos/cotizar` | Cobertura de 5 km, tarifa y ETA. |
+| `POST /api/v1/pedidos/cotizar` | Distancia, tarifa y ETA sin límite de cobertura. |
 | `POST /api/v1/pedidos` | Pedido, descuento BOM, pago pendiente y ETA. |
 | `GET /api/v1/pedidos/kds` | Cola dinámica de cocina y columna de pedidos `LISTO`. |
 | `PATCH /api/v1/pedidos/{id}/estado` | `PENDIENTE → EN_PREPARACION → LISTO → EN_CAMINO`. |
